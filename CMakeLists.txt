@@ -8,6 +8,11 @@ if(NOT PROJECT_NAME)
   project(CGAL CXX C)
 endif()
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+
+message("CONAN_BOOST_ROOT: ${CONAN_BOOST_ROOT}")
+set( BOOST_ROOT ${CONAN_BOOST_ROOT} )
+
 # Fix a bug: `try_compile` should use `CMAKE_EXE_LINKER_FLAGS`.
 # That variable can contain important flags like
 #

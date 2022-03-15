@@ -1,0 +1,13 @@
+[settings]
+os=Windows
+build_type=Release
+arch=x86_64
+compiler=Visual Studio
+compiler.runtime=MD
+compiler.version=16
+cppstd=17
+
+[options]
+boost:header_only=False
+boost:wchar_t=builtin
+boost:shared=False
