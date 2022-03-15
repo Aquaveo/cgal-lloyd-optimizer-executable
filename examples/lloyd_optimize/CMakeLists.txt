@@ -16,10 +16,10 @@ foreach(cppfile ${cppfiles})
 endforeach()
 
 if(CGAL_Qt5_FOUND)
-  target_link_libraries(draw_triangulation_2 PUBLIC CGAL::CGAL_Basic_viewer)
+  target_link_libraries(lloyd_optimize PUBLIC CGAL::CGAL_Basic_viewer)
 else()
   message(
     STATUS
-      "NOTICE: The example draw_triangulation_2 requires Qt and will not be compiled."
+      "NOTICE: lloyd_optimize requires Qt for visualizations and will not support them."
   )
 endif()
