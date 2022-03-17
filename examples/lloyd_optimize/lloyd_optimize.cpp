@@ -30,6 +30,19 @@ typedef CGAL::Delaunay_mesher_2<CDT, Criteria> Mesher;
 typedef CDT::Vertex_handle Vertex_handle;
 typedef CDT::Point Point;
 
+
+template <typename T>
+T max()
+{
+	return std::numeric_limits<T>::max();
+}
+
+template <typename T>
+bool isMax(T value)
+{
+	return value == std::numeric_limits<T>::max();
+}
+
 /// <summary>
 /// Try parsing an argument. If the argument was present but invalid, throws std::invalid_argument.
 /// </summary>
@@ -149,6 +162,97 @@ bool parseArguments(
 }
 
 
+bool loadMesh(const std::string& a_file, CDT& a_cdt)
+{
+	std::ifstream in(a_file);
+
+	if (!in)
+	{
+		std::cerr << "Unable to open input file.\n";
+		return false;
+	}
+
+	size_t numPoints = 0, numCells = 0, numDimensions = 0;
+	in >> numPoints >> numCells >> numDimensions;
+
+	std::vector<Vertex_handle> points;
+	points.reserve(numPoints);
+
+	for (size_t i = 0; i < numPoints; i++)
+	{
+		double x = max<double>(),
+			   y = max<double>();
+		in >> x >> y;
+
+		if (isMax(x) || isMax(y))
+		{
+			std::cerr << "Point " << i << " was bad.\n";
+			return false;
+		}
+
+		points.push_back(a_cdt.insert(Point(x, y)));
+	}
+
+	for (size_t i = 0; i < numCells; i++)
+	{
+		size_t a = max<size_t>(),
+			   b = max<size_t>(),
+			   c = max<size_t>();
+		in >> a >> b >> c;
+
+		if (isMax(a) || isMax(b) || isMax(c))
+		{
+			std::cerr << "Cell " << i << " was bad.\n";
+			return false;
+		}
+
+		a_cdt.insert_constraint(points[a], points[b]);
+		a_cdt.insert_constraint(points[b], points[c]);
+		a_cdt.insert_constraint(points[c], points[a]);
+	}
+
+	for (const auto& point : points)
+	{
+		a_cdt.remove_incident_constraints(point);
+	}
+}
+
+bool saveMesh(const std::string& a_file, CDT& a_cdt)
+{
+	std::ofstream out(a_file);
+
+	if (!out)
+	{
+		std::cerr << "Unable to open output file.\n";
+		return false;
+	}
+
+	std::map<Vertex_handle, size_t> vMap;
+
+	size_t numPoints = a_cdt.number_of_vertices(),
+		   numCells = a_cdt.number_of_faces(),
+		   numDimensions = a_cdt.dimension();
+
+	out << numPoints << ' ' << numCells << ' ' << numDimensions << '\n';
+
+	for (auto& it = a_cdt.finite_vertices_begin(); it != a_cdt.finite_vertices_end(); ++it)
+	{
+		vMap.emplace(it, vMap.size());
+		out << it->point().x() << ' ' << it->point().y() << '\n';
+	}
+	out << '\n';
+
+	for (auto& it = a_cdt.finite_faces_begin(); it != a_cdt.finite_faces_end(); ++it)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			auto v = it->vertex(i);
+			size_t index = vMap[v];
+			out << index << (i == 2 ? '\n' : ' ');
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	std::string mesh;
@@ -166,21 +270,19 @@ int main(int argc, char* argv[])
 	}
 
 	CDT cdt;
-	std::ifstream in(mesh);
-	in >> cdt;
+	loadMesh(mesh, cdt);
 
-	// CGAL::draw(cdt);
+	CGAL::draw(cdt);
 
-	CGAL::lloyd_optimize_mesh_2(cdt,
+	/*CGAL::lloyd_optimize_mesh_2(cdt,
 		CGAL::parameters::time_limit = timeLimit,
 		CGAL::parameters::max_iteration_number = iterations,
 		CGAL::parameters::convergence = convergenceRatio,
-		CGAL::parameters::freeze_bound = freezeBound);
+		CGAL::parameters::freeze_bound = freezeBound);*/
 
-	// CGAL::draw(cdt);
+	CGAL::draw(cdt);
 
-	std::ofstream out(result);
-	out << cdt;
+	saveMesh(result, cdt);
 
 	return EXIT_SUCCESS;
 }
