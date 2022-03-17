@@ -247,7 +247,12 @@ private:
       if ( CGAL::NULL_VECTOR != move )
       {
         Point_2 new_position = translate(oldv->point(), move);
-        moves.push_back(std::make_pair(oldv, new_position));
+
+        auto face = cdt_.locate(new_position, cdt_.infinite_face());
+        if (face != nullptr && !cdt_.is_infinite(face))
+        {
+          moves.push_back(std::make_pair(oldv, new_position));
+        }
       }
       else if(sq_freeze_ratio_ > 0.) //freezing ON
         moving_vertices.erase(oldv);
