@@ -169,7 +169,7 @@ bool parseArguments(
 }
 
 
-bool loadMesh(const std::string& a_file, CDT& a_cdt)
+bool loadMesh(const std::string& a_file, CDT& a_cdt, std::vector<CDT::Point_2>& a_seeds)
 {
 	std::ifstream in(a_file);
 
@@ -179,12 +179,10 @@ bool loadMesh(const std::string& a_file, CDT& a_cdt)
 		return false;
 	}
 
-	size_t numPoints = 0, numCells = 0, numDimensions = 0;
-	in >> numPoints >> numCells >> numDimensions;
-
+	size_t numPoints = 0;
+	in >> numPoints;
 	std::vector<Vertex_handle> points;
 	points.reserve(numPoints);
-
 	for (size_t i = 0; i < numPoints; i++)
 	{
 		double x = max<double>(),
@@ -200,28 +198,42 @@ bool loadMesh(const std::string& a_file, CDT& a_cdt)
 		points.push_back(a_cdt.insert(Point(x, y)));
 	}
 
-	for (size_t i = 0; i < numCells; i++)
+	size_t numBoundaries = 0;
+	in >> numBoundaries;
+	for (size_t i = 0; i < numBoundaries; i++)
 	{
 		size_t a = max<size_t>(),
-			   b = max<size_t>(),
-			   c = max<size_t>();
-		in >> a >> b >> c;
+			   b = max<size_t>();
+		in >> a >> b;
 
-		if (isMax(a) || isMax(b) || isMax(c))
+		if (isMax(a) || isMax(b))
 		{
-			std::cerr << "Cell " << i << " was bad.\n";
+			std::cerr << "Boundary " << i << " was bad.\n";
 			return false;
 		}
 
 		a_cdt.insert_constraint(points[a], points[b]);
-		a_cdt.insert_constraint(points[b], points[c]);
-		a_cdt.insert_constraint(points[c], points[a]);
 	}
 
-	for (const auto& point : points)
+	size_t numSeeds = 0;
+	in >> numSeeds;
+	a_seeds.clear();
+	a_seeds.reserve(numSeeds);
+	for (size_t i = 0; i < numSeeds; i++)
 	{
-		a_cdt.remove_incident_constraints(point);
+		size_t s = max<size_t>();
+		in >> s;
+
+		if (isMax(s))
+		{
+			std::cerr << "Seed " << i << " was bad.\n";
+			return false;
+		}
+
+		a_seeds.push_back(points[s]->point());
 	}
+
+	return true;
 }
 
 bool saveMesh(const std::string& a_file, CDT& a_cdt)
@@ -258,6 +270,8 @@ bool saveMesh(const std::string& a_file, CDT& a_cdt)
 			out << index << (i == 2 ? '\n' : ' ');
 		}
 	}
+
+	return true;
 }
 
 int main(int argc, char* argv[])
@@ -277,15 +291,17 @@ int main(int argc, char* argv[])
 	}
 
 	CDT cdt;
-	loadMesh(mesh, cdt);
+	std::vector<CDT::Point_2> seeds;
+	loadMesh(mesh, cdt, seeds);
 
 	CGAL::draw(cdt);
 
-	/*CGAL::lloyd_optimize_mesh_2(cdt,
+	CGAL::lloyd_optimize_mesh_2(cdt,
 		CGAL::parameters::time_limit = timeLimit,
 		CGAL::parameters::max_iteration_number = iterations,
 		CGAL::parameters::convergence = convergenceRatio,
-		CGAL::parameters::freeze_bound = freezeBound);*/
+		CGAL::parameters::freeze_bound = freezeBound,
+		CGAL::parameters::mark = true);
 
 	CGAL::draw(cdt);
 
