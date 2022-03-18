@@ -1,4 +1,11 @@
 #define CGAL_MESH_2_OPTIMIZER_VERBOSE
+
+constexpr int mode_none = 0;
+constexpr int mode_lock = 1;
+constexpr int mode_delete = 2;
+
+int cgal_constraint_mode = mode_lock;
+
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
 #include <CGAL/Delaunay_mesher_2.h>
