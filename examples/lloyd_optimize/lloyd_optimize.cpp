@@ -79,9 +79,13 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::string inFile(argv[1]), outFile(argv[1]);
-	inFile += ".in";
-	outFile += ".out";
+	std::string directory = argv[1];
+	if (directory[directory.length() - 1] != '/' && directory[directory.length() - 1] != '\\')
+	{
+		directory += '\\';
+	}
+
+	std::string inFile = directory + "to-cgal", outFile = directory + "to-xms";
 
 	int iterations = 0;
 	double convergenceRatio = 0;
