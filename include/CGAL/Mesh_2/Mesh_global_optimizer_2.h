@@ -248,17 +248,10 @@ private:
       {
         Point_2 new_position = translate(oldv->point(), move);
 
-        if (cgal_constraint_mode == mode_lock)
+        auto face = cdt_.locate(new_position, cdt_.infinite_face());
+        if (face != nullptr && !cdt_.is_infinite(face))
         {
-            auto face = cdt_.locate(new_position, cdt_.infinite_face());
-            if (face != nullptr && !cdt_.is_infinite(face))
-            {
-                moves.push_back(std::make_pair(oldv, new_position));
-            }
-        }
-        else
-        {
-            moves.push_back(std::make_pair(oldv, new_position));
+          moves.push_back(std::make_pair(oldv, new_position));
         }
       }
       else if(sq_freeze_ratio_ > 0.) //freezing ON
@@ -384,21 +377,9 @@ private:
       //cdt_.move(v, new_position);
       //function not available, see Constrained_triangulation_2
       cdt_.remove(v);
+      Vertex_handle new_v = cdt_.insert(new_position);
 
-      if (cgal_constraint_mode == mode_delete)
-      {
-        auto face = cdt_.locate(new_position, cdt_.infinite_face());
-        if (face != nullptr && !cdt_.is_infinite(face))
-        {
-          Vertex_handle new_v = cdt_.insert(new_position);
-          new_v->set_sizing_info(size);
-        }
-      }
-      else
-      {
-        Vertex_handle new_v = cdt_.insert(new_position);
-        new_v->set_sizing_info(size);
-      }
+      new_v->set_sizing_info(size);
 
       if( is_time_limit_reached() )
         break;
