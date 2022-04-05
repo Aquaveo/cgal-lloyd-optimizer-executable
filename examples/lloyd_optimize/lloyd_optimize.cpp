@@ -66,8 +66,6 @@ void saveMesh(const std::string& a_file, CDT& a_cdt)
 {
 	std::ofstream out(a_file);
 
-	out << a_cdt.number_of_vertices() << '\n';
-
 	for (auto& it = a_cdt.finite_vertices_begin(); it != a_cdt.finite_vertices_end(); ++it)
 	{
 		out << it->point().x() << ' ' << it->point().y() << '\n';
