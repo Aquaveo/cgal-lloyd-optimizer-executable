@@ -37,11 +37,10 @@ typedef CGAL::Delaunay_mesher_2<CDT, Criteria> Mesher;
 typedef CDT::Vertex_handle Vertex_handle;
 typedef CDT::Point Point;
 
-
 void loadMesh(std::ifstream& a_in, CDT& a_cdt)
 {
 	std::vector<CDT::Point_2> points;
-	size_t numPoints;
+	size_t numPoints = 0;
 	a_in >> numPoints;
 	for (size_t i = 0; i < numPoints; i++)
 	{
@@ -52,7 +51,7 @@ void loadMesh(std::ifstream& a_in, CDT& a_cdt)
 		points.push_back(point);
 	}
 
-	size_t numBoundaries;
+	size_t numBoundaries = 0;
 	a_in >> numBoundaries;
 	for (size_t i = 0; i < numBoundaries; i++)
 	{
