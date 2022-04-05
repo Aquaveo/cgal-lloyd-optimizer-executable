@@ -77,38 +77,12 @@ bool saveMesh(const std::string& a_file, CDT& a_cdt)
 {
 	std::ofstream out(a_file);
 
-	if (!out)
-	{
-		std::cerr << "Unable to open output file.\n";
-		return false;
-	}
-
-	std::map<Vertex_handle, size_t> vMap;
-
-	size_t numPoints = a_cdt.number_of_vertices(),
-		   numCells = a_cdt.number_of_faces(),
-		   numDimensions = a_cdt.dimension();
-
-	out << numPoints << ' ' << numCells << ' ' << numDimensions << '\n';
+	out << a_cdt.number_of_vertices() << '\n';
 
 	for (auto& it = a_cdt.finite_vertices_begin(); it != a_cdt.finite_vertices_end(); ++it)
 	{
-		vMap.emplace(it, vMap.size());
 		out << it->point().x() << ' ' << it->point().y() << '\n';
 	}
-	out << '\n';
-
-	for (auto& it = a_cdt.finite_faces_begin(); it != a_cdt.finite_faces_end(); ++it)
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			auto v = it->vertex(i);
-			size_t index = vMap[v];
-			out << index << (i == 2 ? '\n' : ' ');
-		}
-	}
-
-	return true;
 }
 
 int main(int argc, char* argv[])
@@ -119,18 +93,22 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::ifstream in(argv[1]);
+	std::string inFile(argv[1]), outFile(argv[1]);
+	inFile += ".in";
+	outFile += ".out";
 
 	int iterations = 0;
 	double convergenceRatio = 0;
 	double freezeBound = 0;
 	int timeLimit = 0;
-	in >> iterations >> timeLimit>> convergenceRatio >> freezeBound;
+	CDT cdt;
 
-    CDT cdt;
+	std::ifstream in(inFile);
+
+	in >> iterations >> timeLimit >> convergenceRatio >> freezeBound;
+
 	std::vector<CDT::Point_2> seeds;
 	loadMesh(in, cdt, seeds);
-
 
 	CGAL::draw(cdt);
 
@@ -140,10 +118,10 @@ int main(int argc, char* argv[])
 		CGAL::parameters::convergence = convergenceRatio,
 		CGAL::parameters::freeze_bound = freezeBound,
 		CGAL::parameters::mark = true);
-	
+
 	CGAL::draw(cdt);
 
-	saveMesh(result, cdt);
+	saveMesh(outFile, cdt);
 
 	return EXIT_SUCCESS;
 }
