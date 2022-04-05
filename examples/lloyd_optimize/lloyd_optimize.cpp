@@ -38,7 +38,7 @@ typedef CDT::Vertex_handle Vertex_handle;
 typedef CDT::Point Point;
 
 
-void loadMesh(std::ifstream& a_in, CDT& a_cdt, std::vector<CDT::Point_2>& a_seeds)
+void loadMesh(std::ifstream& a_in, CDT& a_cdt)
 {
 	std::vector<CDT::Point_2> points;
 	size_t numPoints;
@@ -51,10 +51,6 @@ void loadMesh(std::ifstream& a_in, CDT& a_cdt, std::vector<CDT::Point_2>& a_seed
 		a_cdt.insert(point);
 		points.push_back(point);
 	}
-
-	size_t seed;
-	a_in >> seed;
-	a_seeds = { points[seed] };
 
 	size_t numBoundaries;
 	a_in >> numBoundaries;
@@ -100,8 +96,7 @@ int main(int argc, char* argv[])
 
 	in >> iterations >> timeLimit >> convergenceRatio >> freezeBound;
 
-	std::vector<CDT::Point_2> seeds;
-	loadMesh(in, cdt, seeds);
+	loadMesh(in, cdt);
 
 	CGAL::draw(cdt);
 
@@ -110,9 +105,7 @@ int main(int argc, char* argv[])
 		CGAL::parameters::max_iteration_number = iterations,
 		CGAL::parameters::convergence = convergenceRatio,
 		CGAL::parameters::freeze_bound = freezeBound,
-		CGAL::parameters::mark = true,
-		CGAL::parameters::seeds_begin = seeds.begin(),
-		CGAL::parameters::seeds_end = seeds.end());
+		CGAL::parameters::mark = true);
 
 	CGAL::draw(cdt);
 
