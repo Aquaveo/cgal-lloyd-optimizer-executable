@@ -52,15 +52,9 @@ void loadMesh(std::ifstream& a_in, CDT& a_cdt, std::vector<CDT::Point_2>& a_seed
 		points.push_back(point);
 	}
 
-	a_seeds.clear();
-	bool hasSeed;
-	a_in >> hasSeed;
-	if (hasSeed)
-	{
-		double x, y;
-		a_in >> x >> y;
-		a_seeds = { CDT::Point_2(x, y) };
-	}
+	size_t seed;
+	a_in >> seed;
+	a_seeds = { points[seed] };
 
 	size_t numBoundaries;
 	a_in >> numBoundaries;
