@@ -195,6 +195,7 @@ bool loadMesh(const std::string& a_file, CDT& a_cdt, std::vector<CDT::Point_2>& 
 			return false;
 		}
 
+		std::cout << "Inserting point (" << x << ", " << y << ")\n";
 		points.push_back(a_cdt.insert(Point(x, y)));
 	}
 
@@ -212,6 +213,7 @@ bool loadMesh(const std::string& a_file, CDT& a_cdt, std::vector<CDT::Point_2>& 
 			return false;
 		}
 
+		std::cout << "Inserting boundary (" << points[a]->point().x() << ", " << points[a]->point().y() << "), (" << points[b]->point().x() << ", " << points[b]->point().y() << ")\n";
 		a_cdt.insert_constraint(points[a], points[b]);
 	}
 
@@ -230,6 +232,7 @@ bool loadMesh(const std::string& a_file, CDT& a_cdt, std::vector<CDT::Point_2>& 
 			return false;
 		}
 
+		std::cout << "Seed point: (" << points[s]->point().x() << ", " << points[s]->point().y() << ")\n";
 		a_seeds.push_back(points[s]->point());
 	}
 
@@ -302,7 +305,7 @@ int main(int argc, char* argv[])
 		CGAL::parameters::convergence = convergenceRatio,
 		CGAL::parameters::freeze_bound = freezeBound,
 		CGAL::parameters::mark = true);
-
+	
 	CGAL::draw(cdt);
 
 	saveMesh(result, cdt);
