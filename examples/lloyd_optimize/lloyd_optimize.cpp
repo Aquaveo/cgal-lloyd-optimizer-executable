@@ -90,9 +90,14 @@ int main(int argc, char* argv[])
 	CDT cdt;
 
 	std::ifstream in(inFile);
+	if (!in.is_open())
+	{
+		std::cerr << "Unable to open file: " << inFile << '\n';
+		return 1;
+	}
 
 	in >> iterations >> timeLimit >> convergenceRatio >> freezeBound;
-
+	
 	loadMesh(in, cdt);
 
 	CGAL::draw(cdt);
