@@ -127,8 +127,8 @@ public:
   double initial_vertices_nb = static_cast<double>(moving_vertices.size());
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
   double step_begin = running_time_.time();
-  std::cerr << "Running " << Mf::name() << "-smoothing..." << std::endl;
-  std::cerr << "(" << initial_vertices_nb << " vertices moving)" << std::endl;
+  std::cout << "Running " << Mf::name() << "-smoothing..." << std::endl;
+  std::cout << "(" << initial_vertices_nb << " vertices moving)" << std::endl;
 #endif
 
     // Initialize big moves (stores the largest moves)
@@ -174,8 +174,8 @@ public:
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
       double time = running_time_.time();
       double moving_vertices_size = static_cast<double>(moving_vertices.size());
-      std::cerr << boost::format("\r             \r"
-        "end iteration %1% (%2%%% frozen), %3% / %4%, last step:%5$.2fs, step avg:%6$.2fs, avg large move:%7$.3f          ")
+      std::cout << boost::format(
+        "end iteration %1% (%2%%% frozen), %3% / %4%, last step:%5$.2fs, step avg:%6$.2fs, avg large move:%7$.3f\n")
       % (i+1)
       % ((1. - moving_vertices_size/initial_vertices_nb)*100.)
       % moving_vertices_size
@@ -192,17 +192,17 @@ public:
 
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
     if(sq_freeze_ratio_ > 0. && moving_vertices.empty())
-      std::cerr << "All vertices frozen" << std::endl;
+      std::cout << "All vertices frozen" << std::endl;
     else if(sq_freeze_ratio_ > 0. && convergence_stop)
-      std::cerr << "Can't improve anymore" << std::endl;
+      std::cout << "Can't improve anymore" << std::endl;
     else if ( is_time_limit_reached() )
-      std::cerr << "Time limit reached" << std::endl;
+      std::cout << "Time limit reached" << std::endl;
     else if ( check_convergence() )
-      std::cerr << "Convergence reached" << std::endl;
+      std::cout << "Convergence reached" << std::endl;
     else if ( i >= nb_iterations )
-      std::cerr << "Max iteration number reached" << std::endl;
+      std::cout << "Max iteration number reached" << std::endl;
 
-    std::cerr << "Total optimization time: " << running_time_.time()
+    std::cout << "Total optimization time: " << running_time_.time()
               << "s" << std::endl << std::endl;
 #endif
 
