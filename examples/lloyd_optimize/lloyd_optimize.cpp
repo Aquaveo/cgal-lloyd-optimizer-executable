@@ -56,11 +56,24 @@ void loadMesh(std::ifstream& a_in, CDT& a_cdt)
 
 void saveMesh(const std::string& a_file, CDT& a_cdt)
 {
+	std::map<CDT::Point_2, size_t> map;
+	size_t id = 0;
 	std::ofstream out(a_file);
 
-	for (auto& it = a_cdt.finite_vertices_begin(); it != a_cdt.finite_vertices_end(); ++it)
+	for (auto& vertex : a_cdt.finite_vertex_handles())
 	{
-		out << it->point().x() << ' ' << it->point().y() << '\n';
+		map[vertex->point()] = id++;
+		out << vertex->point().x() << ' ' << vertex->point().y() << '\n';
+	}
+
+	out << "-\n";
+
+	for (auto& face : a_cdt.finite_face_handles())
+	{
+		size_t a = map[face->vertex(0)->point()];
+		size_t b = map[face->vertex(1)->point()];
+		size_t c = map[face->vertex(2)->point()];
+		out << a << ' ' << b << ' ' << c << '\n';
 	}
 }
 
