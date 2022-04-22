@@ -19,13 +19,21 @@ typedef CGAL::Constrained_Delaunay_triangulation_2<K, Tds> CDT;
 
 bool stopOptimizing = false;
 
-void watchForCancel()
+//------------------------------------------------------------------------------
+/// \brief Watch for cancel request, then set stopOptimizing to true.
+//------------------------------------------------------------------------------
+void WatchForCancel()
 {
 	std::cin.get();
 	stopOptimizing = true;
-}
+} // WatchForCancel
 
-void loadMesh(std::ifstream& a_in, CDT& a_cdt)
+//------------------------------------------------------------------------------
+/// \brief Load a mesh provided by XMS.
+/// \param a_in: Stream to load mesh from.
+/// \param a_cdt: CDT to put mesh into.
+//------------------------------------------------------------------------------
+void LoadMesh(std::ifstream& a_in, CDT& a_cdt)
 {
 	std::vector<CDT::Point_2> points;
 	size_t numPoints = 0;
@@ -47,9 +55,14 @@ void loadMesh(std::ifstream& a_in, CDT& a_cdt)
 		a_in >> a >> b;
 		a_cdt.insert_constraint(points[a], points[b]);
 	}
-}
+} // LoadMesh
 
-void saveMesh(const std::string& a_file, CDT& a_cdt)
+//------------------------------------------------------------------------------
+/// \brief Save a mesh for XMS.
+/// \param a_cdt: Mesh to save.
+/// \param a_file: Path to save mesh to.
+//------------------------------------------------------------------------------
+void SaveMesh(CDT& a_cdt, const std::string& a_file)
 {
 	std::map<CDT::Point_2, size_t> map;
 	size_t id = 0;
@@ -70,8 +83,14 @@ void saveMesh(const std::string& a_file, CDT& a_cdt)
 		size_t c = map[face->vertex(2)->point()];
 		out << a << ' ' << b << ' ' << c << '\n';
 	}
-}
+} // SaveMesh
 
+//------------------------------------------------------------------------------
+/// \brief Main program function.
+/// \param argc: Number of command line arguments. Should be 2.
+/// \param argv: Command line arguments. Should be program name and path to
+///              working directory.
+//------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
 	if (argc != 2)
@@ -103,9 +122,9 @@ int main(int argc, char* argv[])
 
 	in >> iterations >> timeLimit >> convergenceRatio >> freezeBound;
 	
-	loadMesh(in, cdt);
+	LoadMesh(in, cdt);
 
-	std::thread watcher(watchForCancel);
+	std::thread watcher(WatchForCancel);
 
 	CGAL::lloyd_optimize_mesh_2(cdt,
 		CGAL::parameters::time_limit = timeLimit,
@@ -114,9 +133,9 @@ int main(int argc, char* argv[])
 		CGAL::parameters::freeze_bound = freezeBound,
 		CGAL::parameters::mark = true);
 
-	saveMesh(outFile, cdt);
+	SaveMesh(cdt, outFile);
 
 	watcher.detach();
 
 	return EXIT_SUCCESS;
-}
+} // main
