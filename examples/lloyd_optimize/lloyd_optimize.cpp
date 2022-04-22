@@ -135,6 +135,10 @@ int main(int argc, char* argv[])
 
 	SaveMesh(cdt, outFile);
 
+	// Threads normally raise exceptions if you abandon them, but the thread
+	// doesn't produce any data and we're about to exit anyway. There also isn't
+	// any good way to tell it to stop, so just silence it and let the operating
+	// system clean it up.
 	watcher.detach();
 
 	return EXIT_SUCCESS;
