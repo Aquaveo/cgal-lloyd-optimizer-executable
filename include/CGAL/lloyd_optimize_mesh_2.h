@@ -123,10 +123,7 @@ namespace CGAL
     os.close();
 #endif
 
-    // 1000 iteration max to avoid infinite loop
-    int nb_iterations = (0 == max_iterations)
-      ? 1000
-      : max_iterations;
+    int nb_iterations = max_iterations;
 
     //run optimization
     Mesh_optimization_return_code rc = lloyd(nb_iterations);
