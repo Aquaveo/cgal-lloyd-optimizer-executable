@@ -141,6 +141,7 @@ public:
     bool convergence_stop = false;
 
     // Iterate
+    double last_log = running_time_.time();
     int i = -1;
     while ( ++i < nb_iterations && ! is_time_limit_reached() )
     {
@@ -173,16 +174,20 @@ public:
 
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
       double time = running_time_.time();
-      double moving_vertices_size = static_cast<double>(moving_vertices.size());
-      std::cout << boost::format(
-        "end iteration %1% (%2%%% frozen), %3% / %4%, last step:%5$.2fs, step avg:%6$.2fs, avg large move:%7$.3f\n")
-      % (i+1)
-      % ((1. - moving_vertices_size/initial_vertices_nb)*100.)
-      % moving_vertices_size
-      % initial_vertices_nb
-      % (time - step_begin)
-      % (time / (i+1))
-      % sum_moves_;
+      if (time > last_log + 5)
+      {
+          double moving_vertices_size = static_cast<double>(moving_vertices.size());
+          std::cout << boost::format(
+              "end iteration %1% (%2%%% frozen), %3% / %4%, last step:%5$.2fs, step avg:%6$.2fs, avg large move:%7$.3f\n")
+              % (i + 1)
+              % ((1. - moving_vertices_size / initial_vertices_nb) * 100.)
+              % moving_vertices_size
+              % initial_vertices_nb
+              % (time - step_begin)
+              % (time / (i + 1))
+              % sum_moves_;
+          last_log = running_time_.time();
+      }
       step_begin = running_time_.time();
 #endif
     }
