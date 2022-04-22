@@ -162,7 +162,7 @@ public:
       }
 
       // Stop if convergence or time_limit is reached
-      if ( check_convergence() || is_time_limit_reached() )
+      if ( check_convergence() || is_time_limit_reached() || stopOptimizing )
         break;
 
       // Update mesh with those moves
@@ -191,7 +191,9 @@ public:
     running_time_.stop();
 
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
-    if(sq_freeze_ratio_ > 0. && moving_vertices.empty())
+    if (stopOptimizing)
+      std::cout << "Optimization aborted" << std::endl;
+    else if(sq_freeze_ratio_ > 0. && moving_vertices.empty())
       std::cout << "All vertices frozen" << std::endl;
     else if(sq_freeze_ratio_ > 0. && convergence_stop)
       std::cout << "Can't improve anymore" << std::endl;
@@ -206,7 +208,9 @@ public:
               << "s" << std::endl << std::endl;
 #endif
 
-    if( sq_freeze_ratio_ > 0. && moving_vertices.empty() )
+    if ( stopOptimizing )
+        return CONVERGENCE_REACHED;
+    else if( sq_freeze_ratio_ > 0. && moving_vertices.empty() )
       return ALL_VERTICES_FROZEN;
     else if( sq_freeze_ratio_ > 0. && convergence_stop )
       return CANT_IMPROVE_ANYMORE;

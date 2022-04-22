@@ -17,6 +17,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -29,6 +30,14 @@ typedef CGAL::Delaunay_mesher_2<CDT, Criteria> Mesher;
 
 typedef CDT::Vertex_handle Vertex_handle;
 typedef CDT::Point Point;
+
+bool stopOptimizing = false;
+
+void watchForCancel()
+{
+	std::cin.get();
+	stopOptimizing = true;
+}
 
 void loadMesh(std::ifstream& a_in, CDT& a_cdt)
 {
@@ -110,7 +119,7 @@ int main(int argc, char* argv[])
 	
 	loadMesh(in, cdt);
 
-	CGAL::draw(cdt);
+	std::thread watcher(watchForCancel);
 
 	CGAL::lloyd_optimize_mesh_2(cdt,
 		CGAL::parameters::time_limit = timeLimit,
@@ -119,9 +128,9 @@ int main(int argc, char* argv[])
 		CGAL::parameters::freeze_bound = freezeBound,
 		CGAL::parameters::mark = true);
 
-	CGAL::draw(cdt);
-
 	saveMesh(outFile, cdt);
+
+	watcher.detach();
 
 	return EXIT_SUCCESS;
 }
