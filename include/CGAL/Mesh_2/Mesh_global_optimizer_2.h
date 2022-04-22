@@ -128,7 +128,7 @@ public:
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
   double step_begin = running_time_.time();
   std::cout << "Running " << Mf::name() << "-smoothing..." << std::endl;
-  std::cout << "(" << initial_vertices_nb << " vertices moving)" << std::endl;
+  std::cout << "vertices=" << initial_vertices_nb << std::endl;
 #endif
 
     // Initialize big moves (stores the largest moves)
@@ -174,18 +174,16 @@ public:
 
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
       double time = running_time_.time();
-      if (time > last_log + 5)
+      if (time > last_log + 5 || i == 1 || i == nb_iterations - 1)
       {
           double moving_vertices_size = static_cast<double>(moving_vertices.size());
-          std::cout << boost::format(
-              "end iteration %1% (%2%%% frozen), %3% / %4%, last step:%5$.2fs, step avg:%6$.2fs, avg large move:%7$.3f\n")
-              % (i + 1)
-              % ((1. - moving_vertices_size / initial_vertices_nb) * 100.)
-              % moving_vertices_size
-              % initial_vertices_nb
-              % (time - step_begin)
-              % (time / (i + 1))
-              % sum_moves_;
+          std::cout
+              << "iteration=" << i << ";"
+              << "time=" << running_time_.time() << ";"
+              << "moved=" << moving_vertices_size << ";"
+              << "avgmove=" << sum_moves_ << ";"
+              << "step=" << time - step_begin << ";"
+              << "avgstep=" << time / (i + 1) << std::endl;
           last_log = running_time_.time();
       }
       step_begin = running_time_.time();
@@ -196,21 +194,21 @@ public:
     running_time_.stop();
 
 #ifdef CGAL_MESH_2_OPTIMIZER_VERBOSE
+    std::cout << "result=";
     if (stopOptimizing)
-      std::cout << "Optimization aborted" << std::endl;
+      std::cout << "aborted" << std::endl;
     else if(sq_freeze_ratio_ > 0. && moving_vertices.empty())
-      std::cout << "All vertices frozen" << std::endl;
+      std::cout << "frozen" << std::endl;
     else if(sq_freeze_ratio_ > 0. && convergence_stop)
-      std::cout << "Can't improve anymore" << std::endl;
+      std::cout << "limited" << std::endl;
     else if ( is_time_limit_reached() )
-      std::cout << "Time limit reached" << std::endl;
+      std::cout << "timeout" << std::endl;
     else if ( check_convergence() )
-      std::cout << "Convergence reached" << std::endl;
+      std::cout << "converged" << std::endl;
     else if ( i >= nb_iterations )
-      std::cout << "Max iteration number reached" << std::endl;
+      std::cout << "iterations" << std::endl;
 
-    std::cout << "Total optimization time: " << running_time_.time()
-              << "s" << std::endl << std::endl;
+    std::cout << "time=" << running_time_.time() << std::endl;
 #endif
 
     if ( stopOptimizing )
