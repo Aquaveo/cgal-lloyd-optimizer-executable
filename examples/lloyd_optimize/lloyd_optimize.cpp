@@ -18,14 +18,16 @@ typedef CGAL::Triangulation_data_structure_2<Vb, Fb> Tds;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K, Tds> CDT;
 
 bool stopOptimizing = false;
+bool skipSaving = false;
 
 //------------------------------------------------------------------------------
 /// \brief Watch for cancel request, then set stopOptimizing to true.
 //------------------------------------------------------------------------------
 void WatchForCancel()
 {
-	std::cin.get();
+	char flag = std::cin.get();
 	stopOptimizing = true;
+	skipSaving = (flag == '1');
 } // WatchForCancel
 
 //------------------------------------------------------------------------------
@@ -35,6 +37,7 @@ void WatchForCancel()
 //------------------------------------------------------------------------------
 void LoadMesh(std::ifstream& a_in, CDT& a_cdt)
 {
+	std::cout << "status=loading-points" << std::endl;
 	std::vector<CDT::Point_2> points;
 	size_t numPoints = 0;
 	a_in >> numPoints;
@@ -47,6 +50,7 @@ void LoadMesh(std::ifstream& a_in, CDT& a_cdt)
 		points.push_back(point);
 	}
 
+	std::cout << "status=loading-boundaries" << std::endl;
 	size_t numBoundaries = 0;
 	a_in >> numBoundaries;
 	for (size_t i = 0; i < numBoundaries; i++)
@@ -55,6 +59,7 @@ void LoadMesh(std::ifstream& a_in, CDT& a_cdt)
 		a_in >> a >> b;
 		a_cdt.insert_constraint(points[a], points[b]);
 	}
+	std::cout << "status=loaded" << std::endl;
 } // LoadMesh
 
 //------------------------------------------------------------------------------
@@ -68,14 +73,21 @@ void SaveMesh(CDT& a_cdt, const std::string& a_file)
 	size_t id = 0;
 	std::ofstream out(a_file);
 
+	if (skipSaving)
+	{
+		std::cout << "status=skip-saving" << std::endl;
+		return;
+	}
+
+	std::cout << "status=saving-points" << std::endl;
 	for (auto& vertex : a_cdt.finite_vertex_handles())
 	{
 		map[vertex->point()] = id++;
 		out << vertex->point().x() << ' ' << vertex->point().y() << '\n';
 	}
 
+	std::cout << "status=saving-edges" << std::endl;
 	out << "-\n";
-
 	for (auto& face : a_cdt.finite_face_handles())
 	{
 		size_t a = map[face->vertex(0)->point()];
@@ -83,6 +95,7 @@ void SaveMesh(CDT& a_cdt, const std::string& a_file)
 		size_t c = map[face->vertex(2)->point()];
 		out << a << ' ' << b << ' ' << c << '\n';
 	}
+	std::cout << "status=done-saving" << std::endl;
 } // SaveMesh
 
 //------------------------------------------------------------------------------
