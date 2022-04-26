@@ -106,6 +106,14 @@ void SaveMesh(CDT& a_cdt, const std::string& a_file)
 //------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+	std::cout <<
+		"This program is licensed under the GNU GPL version 3.0 or later.\n"
+		"A copy of this license should be included in the executable's directory "
+		"or can be viewed at ( https://www.gnu.org/licenses/gpl-3.0.html )\n"
+		"This program uses source code from the CGAL project ( https://cgal.org ).\n"
+		"Full source code for this program may be obtained from\n"
+		"https://github.com/Aquaveo/cgal-lloyd-optimizer-executable \n\n";
+
 	if (argc != 2)
 	{
 		std::cerr << "Usage: " << argv[0] << " filename\n";
